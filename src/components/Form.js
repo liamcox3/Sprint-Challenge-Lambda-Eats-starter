@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Route } from "react-router-dom";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
+import axios from "axios";
 
 function Form() {
     const [formState, setFormState] = useState({
@@ -12,12 +13,14 @@ function Form() {
         topping2: "",
         topping3: "",
         topping4: "",
-        special: "",
+        instructions: "",
     });
 
     const [errors, setErrors] = useState({
         name: "",
     });
+
+    const [post, setPost] = useState([]);
 
     const [buttonDisabled, setButtonDisabled] = useState(true);
 
@@ -38,6 +41,10 @@ function Form() {
         e.persist();
         const newFormData = {
             ...formState,
+            [e.target.name]:
+                e.target.type === "checkbox"
+                    ? e.target.checked
+                    : e.target.value,
         };
 
         // validateChange(e);
@@ -48,6 +55,10 @@ function Form() {
         e.persist();
         const newFormData = {
             ...formState,
+            [e.target.name]:
+                e.target.type === "checkbox"
+                    ? e.target.checked
+                    : e.target.value,
         };
 
         validateChange(e);
@@ -71,14 +82,37 @@ function Form() {
             });
     };
 
+    const formSubmit = (e) => {
+        e.preventDefault();
+        axios
+            .post("https://reqres.in/api/users", formState)
+            .then((res) => {
+                setPost(res.data); // get just the form data from the REST api
+                console.log("success", post);
+                // reset form if successful
+                setFormState({
+                    name: "",
+                    size: "",
+                    sauce: "",
+                    topping: "",
+                    topping2: "",
+                    topping3: "",
+                    topping4: "",
+                    instructions: "",
+                });
+            })
+            .catch((err) => console.log(err.response));
+    };
+
     return (
         <div className='App'>
-            <form>
+            <form onSubmit={formSubmit}>
                 <h2>Name for the Order</h2>
                 <label htmlFor='name'></label>
                 <input
                     id='name'
                     type='text'
+                    name='name'
                     value={formState.name}
                     onChange={inputChange2}
                 ></input>
@@ -98,6 +132,7 @@ function Form() {
                     <label htmlFor='sauce'>Origanal Red</label>
                     <input
                         id='sauce'
+                        name='sauce'
                         type='radio'
                         value={formState.sauce}
                         onChange={inputChange}
@@ -111,10 +146,11 @@ function Form() {
                 </div>
                 <div>
                     <h2>Add Toppings</h2>
-                    <p>Choose up to 10</p>
+                    <p>Choose up to 2</p>
                     <label htmlFor='topping'>Pepperoni</label>
                     <input
                         id='topping'
+                        name='topping'
                         type='checkbox'
                         value={formState.topping}
                         onChange={inputChange}
@@ -122,6 +158,7 @@ function Form() {
                     <label htmlFor='topping2'>Sausage</label>
                     <input
                         id='topping2'
+                        name='topping2'
                         type='checkbox'
                         value={formState.topping2}
                         onChange={inputChange}
@@ -129,6 +166,7 @@ function Form() {
                     <label htmlFor='topping3'>Canadian Bacon</label>
                     <input
                         id='topping3'
+                        name='topping3'
                         type='checkbox'
                         value={formState.topping3}
                         onChange={inputChange}
@@ -136,6 +174,7 @@ function Form() {
                     <label htmlFor='topping4'>Spicy Italian Sausage</label>
                     <input
                         id='topping4'
+                        name='topping4'
                         type='checkbox'
                         value={formState.topping4}
                         onChange={inputChange}
@@ -146,13 +185,14 @@ function Form() {
                     <label htmlFor='instructions'></label>
                     <input
                         id='instructions'
+                        name='instructions'
                         type='text'
                         placeholder="Anything else you'd like to add?"
                         // value={formState.special}
                         onChange={inputChange}
                     ></input>
                 </div>
-
+                <pre>{JSON.stringify(post, null, 2)}</pre>
                 <button type='submit' disabled={buttonDisabled}>
                     Add to Order
                 </button>

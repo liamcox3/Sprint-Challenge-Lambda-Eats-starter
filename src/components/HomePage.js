@@ -6,7 +6,7 @@ const HomePage = (props) => {
     return (
         <header>
             <div>
-                <img src='' alt='picture of pizza' />
+                <img src='./' alt='picture of pizza' />
             </div>
         </header>
     );
